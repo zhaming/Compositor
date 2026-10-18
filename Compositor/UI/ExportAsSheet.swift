@@ -107,7 +107,7 @@ struct ExportAsSheet: View {
                     // which takes the chosen one's name.
                     HStack(spacing: 12) {
                         Picker("Format", selection: $format) {
-                            ForEach([ExportFormat.jpeg, .png], id: \.self) { Text($0.rawValue).tag($0) }
+                            ForEach([ExportFormat.jpeg, .png], id: \.self) { Text($0.rawValue.localized).tag($0) }
                         }
                         .pickerStyle(.segmented).labelsHidden().fixedSize()
                         moreFormats
@@ -266,12 +266,17 @@ struct ExportAsSheet: View {
         let chosen = others.contains(format)
         let menu = Menu(chosen ? format.rawValue : "More") {
             Picker("More formats", selection: $format) {
-                ForEach(others, id: \.self) { Text($0.rawValue).tag($0) }
+                ForEach(others, id: \.self) { Text($0.rawValue.localized).tag($0) }
             }
             .pickerStyle(.inline).labelsHidden()
         }
         .menuStyle(.button).fixedSize()
-        .help("Other formats: TIFF and PDF\(others.contains(.exr) ? ", and EXR to keep light brighter than white" : "")")
+        .help(String(
+            format: NSLocalizedString("Other formats: TIFF and PDF%@", comment: "Export format menu help; %@ is an optional clause about EXR"),
+            others.contains(.exr)
+                ? NSLocalizedString(", and EXR to keep light brighter than white", comment: "Exported formats clause")
+                : ""
+        ))
         if chosen { menu.buttonStyle(.borderedProminent) } else { menu.buttonStyle(.bordered) }
     }
 

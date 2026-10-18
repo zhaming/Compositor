@@ -175,11 +175,19 @@ extension CommandPaletteEntry {
     static func layerCommands(for session: EditorSession) -> [CommandPaletteEntry] {
         let canAdd = session.canEditMask && session.activeLayer?.mask == nil
         let selected = session.selection != nil
+        // The id stays English so entries keep a stable identity; the title is
+        // what the palette shows and searches.
+        let fromSelection = "Layer › Add Layer Mask from Selection"
+        let plain = "Layer › Add Layer Mask"
+        let hidingSelection = "Layer › Add Layer Mask Hiding Selection"
+        let hideAll = "Layer › Add Layer Mask (Hide All)"
         return [
-            CommandPaletteEntry(id: selected ? "Layer › Add Layer Mask from Selection" : "Layer › Add Layer Mask",
+            CommandPaletteEntry(id: selected ? fromSelection : plain,
+                                title: (selected ? fromSelection : plain).localized,
                                 shortcut: nil, isEnabled: canAdd,
                                 perform: { [weak session] in session?.addMask(revealing: true) }),
-            CommandPaletteEntry(id: selected ? "Layer › Add Layer Mask Hiding Selection" : "Layer › Add Layer Mask (Hide All)",
+            CommandPaletteEntry(id: selected ? hidingSelection : hideAll,
+                                title: (selected ? hidingSelection : hideAll).localized,
                                 shortcut: nil, isEnabled: canAdd,
                                 perform: { [weak session] in session?.addMask(revealing: false) }),
         ]
@@ -216,7 +224,12 @@ extension CommandPaletteEntry {
             ("Zoom", "Z", .zoom, nil),
         ]
         return tools.map { name, key, tool, setup in
-            CommandPaletteEntry(id: "Tool › \(name)", shortcut: key, isEnabled: session.document != nil,
+            CommandPaletteEntry(id: "Tool › \(name)",
+                                title: String(
+                                    format: NSLocalizedString("Tool › %@", comment: "Command palette entry for a tool"),
+                                    name.localized
+                                ),
+                                shortcut: key, isEnabled: session.document != nil,
                                 perform: { [weak session] in
                                     guard let session else { return }
                                     session.selectTool(tool)

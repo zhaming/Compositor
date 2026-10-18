@@ -54,8 +54,9 @@ struct ShortcutChord: Codable, Equatable, Hashable {
         return flags
     }
     var label: String {
-        if isNone { return "None" }
-        let special = ["\u{7f}": "Delete", "\r": "Return", "\u{1b}": "Esc", "\t": "Tab", " ": "Space",
+        if isNone { return "None".localized }
+        let special = ["\u{7f}": "Delete".localized, "\r": "Return".localized, "\u{1b}": "Esc",
+                       "\t": "Tab", " ": "Space".localized,
                        "\u{f702}": "←", "\u{f703}": "→", "\u{f701}": "↓", "\u{f700}": "↑"]
         return (modifiers & 4 != 0 ? "⌃" : "") + (modifiers & 2 != 0 ? "⌥" : "")
             + (modifiers & 8 != 0 ? "⇧" : "") + (modifiers & 1 != 0 ? "⌘" : "")
@@ -127,16 +128,36 @@ struct ShortcutDefinition: Identifiable {
         result += [entry("Decrease brush hardness", "[", 8), entry("Increase brush hardness", "]", 8),
                    entry("Previous blend mode", "-", 8), entry("Next blend mode", "=", 8),
                    entry("Cycle shape kind", "u", 8)]
-        for digit in 0...9 { result.append(entry("Opacity digit \(digit) (type two for exact %)", String(digit))) }
+        for digit in 0...9 {
+            result.append(entry(
+                String(
+                    format: NSLocalizedString("Opacity digit %d (type two for exact %%)", comment: "Shortcut: press a digit to set opacity"),
+                    digit
+                ),
+                String(digit)
+            ))
+        }
         for (direction, key) in [("Left", "\u{f702}"), ("Right", "\u{f703}"), ("Up", "\u{f700}"), ("Down", "\u{f701}")] {
-            result += [entry("Nudge \(direction) 1 px", key), entry("Nudge \(direction) 10 px", key, 8),
-                       entry("Move selected pixels \(direction) 1 px", key, 1), entry("Move selected pixels \(direction) 10 px", key, 9)]
+            let way = direction.localized
+            result += [
+                entry(String(format: NSLocalizedString("Nudge %@ 1 px", comment: "Shortcut: nudge a selection by one pixel"), way), key),
+                entry(String(format: NSLocalizedString("Nudge %@ 10 px", comment: "Shortcut: nudge a selection by ten pixels"), way), key, 8),
+                entry(String(format: NSLocalizedString("Move selected pixels %@ 1 px", comment: "Shortcut: move selected pixels by one pixel"), way), key, 1),
+                entry(String(format: NSLocalizedString("Move selected pixels %@ 10 px", comment: "Shortcut: move selected pixels by ten pixels"), way), key, 9),
+            ]
         }
         result.append(.init(title: "Finish editing text", group: "Text Editing", original: ShortcutChord("\r", 1)))
         for (title, key) in [("Decrease tracking", "\u{f702}"), ("Increase tracking", "\u{f703}"),
                              ("Decrease leading", "\u{f700}"), ("Increase leading", "\u{f701}")] {
             result.append(.init(title: title, group: "Text Editing", original: ShortcutChord(key, 2)))
-            result.append(.init(title: title + " by 10", group: "Text Editing", original: ShortcutChord(key, 10)))
+            result.append(.init(
+                title: String(
+                    format: NSLocalizedString("%@ by 10", comment: "Shortcut that does the same as %@ in tens"),
+                    title.localized
+                ),
+                group: "Text Editing",
+                original: ShortcutChord(key, 10)
+            ))
         }
         result.append(entry("Toggle Levels preview", "p", 2))
         return result
@@ -275,10 +296,10 @@ private struct KeyboardShortcutsSheet: View {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 6) {
                     ForEach(["Menus", "Canvas & Layers", "Text Editing"], id: \.self) { group in
-                        Text(group).font(.headline).padding(.top, 8)
-                        ForEach(ShortcutDefinition.all.filter { $0.group == group && (search.isEmpty || $0.title.localizedCaseInsensitiveContains(search)) }) { definition in
+                        Text(group.localized).font(.headline).padding(.top, 8)
+                        ForEach(ShortcutDefinition.all.filter { $0.group == group && (search.isEmpty || $0.title.localizedCaseInsensitiveContains(search) || $0.title.localized.localizedCaseInsensitiveContains(search)) }) { definition in
                             HStack {
-                                Text(definition.title)
+                                Text(definition.title.localized)
                                 Spacer()
                                 ShortcutRecorder(chord: draft[definition.id] ?? definition.original,
                                     recording: recording == definition.id,

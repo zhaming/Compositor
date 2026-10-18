@@ -1,5 +1,7 @@
 # Compositor
 
+**English** · [简体中文](README.zh-CN.md)
+
 Adobe Photoshop costs too much and tools like GIMP don’t feel familiar enough for me to stay in flow. That’s why I built Compositor.
 
 The goal was to create a full-featured image editor that is completely free and open source. I used to use Photoshop for compositing and post-processing, so Compositor is built around that workflow - with the tools needed to create a pixel-perfect final image.
@@ -89,6 +91,8 @@ brew install --cask robbietilton-compositor
 ## Translations
 
 Compositor is English only for now, and translation pull requests aren't being accepted. It's maintained by one person, every new string would need translating from then on, and translations in languages I don't read can't be reviewed. I'll revisit this once the app settles; until then, please don't open localization PRs.
+
+This fork (`zhaming/Compositor`) adds a **Simplified Chinese** interface on top of upstream. The UI follows the system language and falls back to English. See [CHANGELOG.zh-CN.md](CHANGELOG.zh-CN.md) for what changed and [README.zh-CN.md](README.zh-CN.md) for the Chinese readme.
 
 ## Building
 

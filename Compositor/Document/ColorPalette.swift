@@ -273,14 +273,25 @@ enum ColorPickerTarget: Equatable {
     /// A dialog's own color, such as Export JPEG's background for transparency. The dialog is told as it changes.
     case dialog(title: String)
     var title: String {
+        String(
+            format: NSLocalizedString("Color Picker (%@)", comment: "Colour picker window title; %@ is what is being coloured"),
+            subject
+        )
+    }
+    /// What the picker is colouring, shown inside the window title.
+    private var subject: String {
         switch self {
-        case .text: return "Color Picker (Text Color)"
-        case .effect(let kind): return "Color Picker (\(kind.rawValue) Color)"
-        case .palette(let background): return background ? "Color Picker (Background Color)" : "Color Picker (Foreground Color)"
-        case .gradientMap(let highlights): return highlights ? "Color Picker (Gradient Map Highlights)" : "Color Picker (Gradient Map Shadows)"
-        case .vignette: return "Color Picker (Vignette Color)"
-        case .dither(let light): return light ? "Color Picker (Light Color)" : "Color Picker (Dark Color)"
-        case .dialog(let title): return "Color Picker (\(title))"
+        case .text: return "Text Color".localized
+        case .effect(let kind):
+            return String(
+                format: NSLocalizedString("%@ Color", comment: "Colour of a layer effect, such as Drop Shadow Color"),
+                kind.rawValue.localized
+            )
+        case .palette(let background): return background ? "Background Color".localized : "Foreground Color".localized
+        case .gradientMap(let highlights): return highlights ? "Gradient Map Highlights".localized : "Gradient Map Shadows".localized
+        case .vignette: return "Vignette Color".localized
+        case .dither(let light): return light ? "Light Color".localized : "Dark Color".localized
+        case .dialog(let title): return title
         }
     }
 }

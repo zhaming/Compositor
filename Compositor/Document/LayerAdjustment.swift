@@ -219,7 +219,7 @@ extension EditorSession {
         layer.adjustment = adjustment
         layer.parentID = activeLayer?.isGroup == true ? activeLayerID : activeLayer?.parentID
         let index = document.layers.firstIndex { $0.id == activeLayerID }.map { $0 + 1 } ?? document.layers.count
-        beginEdit("New \(kind.rawValue) Adjustment")
+        beginEdit(String(format: NSLocalizedString("New %@ Adjustment", comment: "Undo step for adding an adjustment layer"), kind.rawValue.localized))
         self.document?.layers.insert(layer, at: index)
         if let parent = layer.parentID { collapsedGroupIDs.remove(parent) }
         activeLayerID = layer.id

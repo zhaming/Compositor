@@ -42,13 +42,13 @@ struct LayersPanel: View {
                 LayerMaskMenu(session: session)
                 Menu {
                     ForEach(AdjustmentKind.allCases, id: \.self) { kind in
-                        Button(kind.rawValue) { session.addAdjustment(kind) }
+                        Button(kind.rawValue.localized) { session.addAdjustment(kind) }
                     }
                 } label: { Image(systemName: "circle.lefthalf.filled").footerHitArea() }
                     .menuStyle(.borderlessButton).fixedSize().help("New adjustment layer").disabled(!session.layersLookEditable)
                 Menu {
                     ForEach(LayerEffectKind.allCases, id: \.self) { kind in
-                        Button(kind.rawValue + "…") { session.addEffect(kind) }
+                        Button(kind.rawValue.localized + "…") { session.addEffect(kind) }
                     }
                 } label: { Image(systemName: "sparkles").footerHitArea() }
                     .menuStyle(.borderlessButton).fixedSize()
@@ -56,8 +56,8 @@ struct LayersPanel: View {
                     .accessibilityIdentifier("layerEffects").disabled(!session.layersLookEditable || session.activeLayer?.isGroup != false || session.activeLayer?.asset == nil)
                 Spacer()
                 Button { session.deleteLayerOrMask() } label: { FooterIcon(systemName: "trash") }
-                    .help(session.selectedEffect != nil ? "Delete selected effect" : session.isMaskSelected ? "Delete layer mask" : session.selectedLayerIDs.count > 1 ? "Delete selected layers" : "Delete selected layer")
-                    .accessibilityLabel(session.selectedEffect != nil ? "Delete selected effect" : session.isMaskSelected ? "Delete layer mask" : session.selectedLayerIDs.count > 1 ? "Delete selected layers" : "Delete selected layer")
+                    .help(session.selectedEffect != nil ? "Delete selected effect".localized : session.isMaskSelected ? "Delete layer mask".localized : session.selectedLayerIDs.count > 1 ? "Delete selected layers".localized : "Delete selected layer".localized)
+                    .accessibilityLabel(session.selectedEffect != nil ? "Delete selected effect".localized : session.isMaskSelected ? "Delete layer mask".localized : session.selectedLayerIDs.count > 1 ? "Delete selected layers".localized : "Delete selected layer".localized)
                     .accessibilityIdentifier("deleteLayer")
                     .disabled(!session.layersLookEditable || session.activeLayer == nil)
             }

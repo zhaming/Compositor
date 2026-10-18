@@ -14,8 +14,11 @@ struct ColorRangeSheet: View {
                         // Holding Shift or Option lights up the eyedropper a click will use.
                         .background(edit?.effectiveMode == mode ? Color.accentColor.opacity(0.25) : .clear,
                                     in: RoundedRectangle(cornerRadius: 4))
-                        .help(help(mode))
-                        .accessibilityLabel("\(mode.rawValue) color")
+                        .help(help(mode).localized)
+                        .accessibilityLabel(String(
+                            format: NSLocalizedString("%@ color", comment: "Eyedropper accessibility label; %@ is the sampling mode"),
+                            mode.rawValue.localized
+                        ))
                 }
                 Spacer()
             }

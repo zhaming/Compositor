@@ -276,7 +276,7 @@ private struct OverflowTabsPill: View {
     private var label: String { projectTabOverflowLabel(for: hiddenIDs.count) }
     var body: some View {
         HStack(spacing: 4) {
-            Text(label).font(.system(size: 12, weight: .medium))
+            Text(label.localized).font(.system(size: 12, weight: .medium))
             Image(systemName: "chevron.down").font(.system(size: 9, weight: .medium))
         }
         .padding(.horizontal, 11)
@@ -293,7 +293,7 @@ private struct OverflowTabsPill: View {
                 }
             }
         })
-        .help(label)
+        .help(label.localized)
         .accessibilityIdentifier("projectTabsOverflow")
     }
 }
@@ -321,7 +321,7 @@ private struct OverflowMenuAnchor: NSViewRepresentable {
             actions = entries.map(\.action)
             let menu = NSMenu()
             for (index, entry) in entries.enumerated() {
-                let item = NSMenuItem(title: entry.title, action: #selector(choose(_:)), keyEquivalent: "")
+                let item = NSMenuItem(title: entry.title.localized, action: #selector(choose(_:)), keyEquivalent: "")
                 item.target = self
                 item.tag = index
                 menu.addItem(item)
@@ -340,6 +340,14 @@ private struct ProjectTabButton: View {
     let onReorder: (TabDragPhase) -> Void
     @State private var targeted = false
     private var active: Bool { workspace.selectedID == tab.id }
+    /// "Close <tab name>" — the tab name is user data, so it goes in as an
+    /// argument rather than being baked into the key.
+    private var closeLabel: String {
+        String(
+            format: NSLocalizedString("Close %@", comment: "Close button for a project tab; %@ is the tab name"),
+            tab.title
+        )
+    }
     var body: some View {
         HStack(spacing: 0) {
             Button { workspace.select(tab.id) } label: {
@@ -369,14 +377,16 @@ private struct ProjectTabButton: View {
                         .frame(width: 16, height: 28)
                         .padding(.trailing, 5)
                         .contentShape(Rectangle())
-                }.buttonStyle(.plain).help("Close \(tab.title)").disabled(!workspace.canSwitch)
-                    .accessibilityLabel("Close \(tab.title)")
+                }.buttonStyle(.plain).help(closeLabel).disabled(!workspace.canSwitch)
+                    .accessibilityLabel(closeLabel)
             }
         }
         .frame(height: 28)
         .background(targeted ? Color.accentColor.opacity(0.3) : Color.white.opacity(active ? 0.12 : 0.035), in: Capsule())
         .overlay(Capsule().strokeBorder(targeted ? Color.accentColor : Color.white.opacity(active ? 0.22 : 0.08), lineWidth: targeted ? 2 : 1))
-        .help(targeted ? "Add to \(tab.title)" : tab.title)
+        .help(targeted
+              ? String(format: NSLocalizedString("Add to %@", comment: "Drop a file onto this tab to add it to that document"), tab.title.localized)
+              : tab.title.localized)
         .onDrop(of: [UTType.fileURL.identifier, UTType.image.identifier, ProjectWorkspace.layerType], delegate:
             ProjectTabDropDelegate(workspace: workspace, destination: tab.id, targeted: $targeted))
     }
@@ -388,7 +398,7 @@ struct NewProjectDropTarget: ViewModifier {
     func body(content: Content) -> some View {
         content
             .overlay(RoundedRectangle(cornerRadius: 6).strokeBorder(targeted ? Color.accentColor : .clear, lineWidth: 2))
-            .help(targeted ? "Open in a new project tab" : "New canvas (⌘N) · Drop images here for new tabs")
+            .help(targeted ? "Open in a new project tab".localized : "New canvas (⌘N) · Drop images here for new tabs".localized)
             .onDrop(of: [UTType.fileURL.identifier, UTType.image.identifier, ProjectWorkspace.layerType], delegate:
                 ProjectTabDropDelegate(workspace: workspace, destination: nil, targeted: $targeted))
     }

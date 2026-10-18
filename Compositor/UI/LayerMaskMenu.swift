@@ -9,8 +9,8 @@ struct LayerMaskMenu: View {
         Button {
             session.addMask(revealing: NSApp.currentEvent?.modifierFlags.contains(.option) != true)
         } label: { FooterIcon(systemName: "rectangle.inset.filled") }
-        .help(session.selection == nil ? "Add layer mask (Option-click for a black mask)"
-              : "Add layer mask revealing the selection (Option-click to hide it)")
+        .help(session.selection == nil ? "Add layer mask (Option-click for a black mask)".localized
+              : "Add layer mask revealing the selection (Option-click to hide it)".localized)
         .accessibilityLabel("Add layer mask")
         .disabled(!session.layersLookEditable || session.selectedLayerIDs.count != 1 || session.activeLayer == nil
                   || session.activeLayer?.mask != nil)
@@ -27,7 +27,7 @@ struct MaskAloneBadge: NSViewRepresentable {
                        closeHelp: "Show the image again (or Option-click the mask thumbnail)") { [session] in session.viewsMaskAlone = false }
     }
     func updateNSView(_ view: CanvasPillView, context: Context) {
-        view.title = "Layer Mask"
+        view.title = "Layer Mask".localized
         view.detail = layer.name
     }
 }

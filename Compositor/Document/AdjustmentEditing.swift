@@ -56,7 +56,7 @@ extension EditorSession {
                 filterEdit = try FilterEdit(kind: original.kind.filterKind ?? .curves, layer: layer, selection: nil, settings: settings)
             }
             adjustmentOriginal = original
-            beginEdit("Edit \(original.kind.rawValue) Adjustment")
+            beginEdit(String(format: NSLocalizedString("Edit %@ Adjustment", comment: "Undo step for editing an adjustment layer"), original.kind.rawValue.localized))
         } catch {
             guard adjustmentEditingID == id else { return }
             adjustmentEditingID = nil

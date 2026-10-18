@@ -105,9 +105,12 @@ struct ImageSizeSheet: View {
     @ViewBuilder private var sheet: some View {
         VStack(alignment: .leading, spacing: 18) {
             Text("Image Size").font(.title2.bold())
-            Text("Current: \(document.width) × \(document.height) pixels").foregroundStyle(.secondary)
+            Text(String(
+                format: NSLocalizedString("Current: %d × %d pixels", comment: "Image size sheet; the two %d are width and height"),
+                document.width, document.height
+            )).foregroundStyle(.secondary)
             Picker("Units", selection: $unit) {
-                ForEach(units.filter { resample || ($0 != "Pixels" && $0 != "Percent") }, id: \.self) { Text($0) }
+                ForEach(units.filter { resample || ($0 != "Pixels" && $0 != "Percent") }, id: \.self) { Text($0.localized) }
             }
             HStack {
                 Text("Width").frame(width: 75, alignment: .leading)
@@ -147,7 +150,7 @@ struct ImageSizeSheet: View {
             }
             if resample {
                 Picker("Sampling", selection: $sampling) {
-                    ForEach(LayerSampling.allCases, id: \.self) { Text($0.rawValue).tag($0) }
+                    ForEach(LayerSampling.allCases, id: \.self) { Text($0.rawValue.localized).tag($0) }
                 }
                 Text("Resizes layer pixels and applies existing transforms. Undo restores the originals.")
                     .font(.callout).foregroundStyle(.secondary)
@@ -155,7 +158,15 @@ struct ImageSizeSheet: View {
                 Text("Only print dimensions and resolution change. Pixels stay unchanged.")
                     .font(.callout).foregroundStyle(.secondary)
             }
-            Text(valid ? "Result: \(Int(width.rounded())) × \(Int(height.rounded())) pixels" : "Use 1–\(DocumentLimits.maxSide.formatted()) pixels per side, up to \(DocumentLimits.maxSurfaceMegapixels) megapixels, and 1–9,600 pixels/inch.")
+            Text(valid
+                 ? String(
+                     format: NSLocalizedString("Result: %d × %d pixels", comment: "Image size result"),
+                     Int(width.rounded()), Int(height.rounded())
+                   )
+                 : String(
+                     format: NSLocalizedString("Use 1–%@ pixels per side, up to %d megapixels, and 1–9,600 pixels/inch.", comment: "Image size validation message"),
+                     DocumentLimits.maxSide.formatted(), DocumentLimits.maxSurfaceMegapixels
+                   ))
                 .foregroundStyle(valid ? Color.secondary : Color.orange).font(.callout)
             HStack {
                 Button("Cancel") { finish(nil) }.configuredNativeShortcut(.escape)

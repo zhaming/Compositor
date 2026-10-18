@@ -52,8 +52,8 @@ struct CameraRawControls: View {
                 Button("Vectorscope") { session.filterEdit?.cameraRawScopeMode = .vectorscope }
             }
             .help(mode == .histogram
-                  ? "Tones from black on the left to white on the right: blacks, shadows, midtones, highlights, whites. Control-click to show the vectorscope."
-                  : "Hue around the wheel, saturation outward from the center. Control-click to show the histogram.")
+                  ? "Tones from black on the left to white on the right: blacks, shadows, midtones, highlights, whites. Control-click to show the vectorscope.".localized
+                  : "Hue around the wheel, saturation outward from the center. Control-click to show the histogram.".localized)
             Text(readout)
                 .font(.caption.monospacedDigit())
                 .foregroundStyle(.secondary)
@@ -78,8 +78,8 @@ struct CameraRawControls: View {
                 .foregroundStyle(on ? (shadows ? Color.blue : Color.red) : Color.white.opacity(0.55))
         }
         .buttonStyle(.plain)
-        .help(shadows ? "Show clipped shadows in blue on the preview." : "Show clipped highlights in red on the preview.")
-        .accessibilityLabel(shadows ? "Shadow Clipping Indicator" : "Highlight Clipping Indicator")
+        .help(shadows ? "Show clipped shadows in blue on the preview.".localized : "Show clipped highlights in red on the preview.".localized)
+        .accessibilityLabel(shadows ? "Shadow Clipping Indicator".localized : "Highlight Clipping Indicator".localized)
     }
 
     private func graph(_ scope: CameraRawScope?, mode: CameraRawScopeMode) -> some View {
@@ -105,7 +105,7 @@ struct CameraRawControls: View {
                 }
             }
         }
-        .accessibilityLabel(mode == .histogram ? "RGB histogram" : "Vectorscope")
+        .accessibilityLabel(mode == .histogram ? "RGB histogram".localized : "Vectorscope".localized)
     }
 
     private func ribbon(_ bins: [Double], color: Color, peak: Double, in context: GraphicsContext, size: CGSize) {
@@ -131,12 +131,12 @@ struct CameraRawControls: View {
                         Image(systemName: expanded.contains(section) ? "chevron.down" : "chevron.right")
                             .font(.caption.weight(.semibold))
                             .frame(width: 12)
-                        Text(section.rawValue).font(.headline)
+                        Text(section.rawValue.localized).font(.headline)
                     }
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel(section.rawValue)
+                .accessibilityLabel(section.rawValue.localized)
                 Spacer(minLength: 0)
                 if section == .light, raw.adjustsLight {
                     eye(shown: session.filterEdit?.showsCameraRawLight ?? true, name: "Light", group: .light)
@@ -219,7 +219,7 @@ struct CameraRawControls: View {
                 Text("White Balance").frame(minWidth: Self.labelWidth, alignment: .leading)
                     .help("Auto balances the average color. Custom follows Temperature and Tint.")
                 Picker("White Balance", selection: Binding(get: { raw.whiteBalance }, set: setWhiteBalance)) {
-                    ForEach(CameraRawWhiteBalance.allCases, id: \.self) { Text($0.rawValue).tag($0) }
+                    ForEach(CameraRawWhiteBalance.allCases, id: \.self) { Text($0.rawValue.localized).tag($0) }
                 }
                 .labelsHidden()
                 .help("Auto balances the average color. Custom follows Temperature and Tint.")
@@ -261,7 +261,7 @@ struct CameraRawControls: View {
             slider("Glow", \.glow, range: CameraRawSettings.unitRange, decimals: 0, clipping: nil,
                    help: "Spreads a glow from the bright areas.")
             Picker("Style", selection: Binding(get: { raw.glowStyle }, set: { style in update { $0.cameraRaw.glowStyle = style } })) {
-                ForEach(CameraRawGlowStyle.allCases, id: \.self) { Text($0.rawValue).tag($0) }
+                ForEach(CameraRawGlowStyle.allCases, id: \.self) { Text($0.rawValue.localized).tag($0) }
             }
             .help("Diffusion is soft and wide, Bloom is tighter, and Halation is a red fringe.")
             VStack(alignment: .leading, spacing: 8) {
@@ -277,7 +277,7 @@ struct CameraRawControls: View {
             slider("Amount", \.vignetteAmount, range: CameraRawSettings.toneRange, decimals: 0, clipping: nil,
                    help: "Darkens or lightens the edges. The center does not change.")
             Picker("Style", selection: Binding(get: { raw.vignetteStyle }, set: { style in update { $0.cameraRaw.vignetteStyle = style } })) {
-                ForEach(CameraRawVignetteStyle.allCases, id: \.self) { Text($0.rawValue).tag($0) }
+                ForEach(CameraRawVignetteStyle.allCases, id: \.self) { Text($0.rawValue.localized).tag($0) }
             }
             .help("Highlight Priority protects bright edges. Color Priority also reduces color. Paint Overlay covers the edges evenly.")
             VStack(alignment: .leading, spacing: 8) {
@@ -320,8 +320,15 @@ struct CameraRawControls: View {
             Image(systemName: shown ? "eye" : "eye.slash")
         }
         .buttonStyle(.borderless)
-        .help(shown ? "Hide \(name) in the preview" : "Show \(name) in the preview")
-        .accessibilityLabel(shown ? "Hide \(name)" : "Show \(name)")
+        // The section name arrives as an English literal; translate it here so
+        // every caller does not have to. The phrases around it are format
+        // strings so a translation can reorder them.
+        .help(shown
+              ? String(format: NSLocalizedString("Hide %@ in the preview", comment: "Eye button help; %@ is a Camera Raw panel name"), name.localized)
+              : String(format: NSLocalizedString("Show %@ in the preview", comment: "Eye button help; %@ is a Camera Raw panel name"), name.localized))
+        .accessibilityLabel(shown
+                            ? String(format: NSLocalizedString("Hide %@", comment: "Accessibility label; %@ is a Camera Raw panel name"), name.localized)
+                            : String(format: NSLocalizedString("Show %@", comment: "Accessibility label; %@ is a Camera Raw panel name"), name.localized))
     }
 
     /// Puts an adjusted section back to its defaults.
@@ -331,8 +338,8 @@ struct CameraRawControls: View {
         }
         .buttonStyle(.borderless)
         .disabled(session.filterEdit?.committing == true)
-        .help("Reset \(group.rawValue) to its defaults")
-        .accessibilityLabel("Reset \(group.rawValue)")
+        .help(String(format: NSLocalizedString("Reset %@ to its defaults", comment: "Reset button help; %@ is a Camera Raw panel name"), group.rawValue.localized))
+        .accessibilityLabel(String(format: NSLocalizedString("Reset %@", comment: "Reset button accessibility label; %@ is a Camera Raw panel name"), group.rawValue.localized))
     }
 
     private func slider(_ title: String, _ key: WritableKeyPath<CameraRawSettings, Double>, range: ClosedRange<Double>,
@@ -340,9 +347,9 @@ struct CameraRawControls: View {
                         reset resetValue: Double = 0, help: String) -> some View {
         let step = pow(10, Double(decimals))
         return HStack(spacing: 10) {
-            Text(title)
+            Text(title.localized)
                 .frame(minWidth: Self.labelWidth, alignment: .leading)
-                .help(help)
+                .help(help.localized)
                 .onTapGesture(count: 2) { reset(key, to: resetValue) }
                 .scrubbable(sensitivity: 1 / step,
                             value: Binding(get: { raw[keyPath: key] }, set: { assign(key, $0, clipping: nil) }),
@@ -353,10 +360,10 @@ struct CameraRawControls: View {
             TextField(title, value: Binding(get: { raw[keyPath: key] }, set: { assign(key, $0, clipping: nil) }),
                       format: .number.precision(.fractionLength(0...decimals)))
                 .frame(width: 56).textFieldStyle(.roundedBorder).multilineTextAlignment(.trailing)
-                .help(help)
+                .help(help.localized)
         }
         .accessibilityElement(children: .contain)
-        .accessibilityLabel(title)
+        .accessibilityLabel(title.localized)
     }
 
     private func setWhiteBalance(_ mode: CameraRawWhiteBalance) {
